@@ -1,7 +1,7 @@
 # 上游 DNS 配置
 
 include:
-  - ./cdn.yaml # cdn -> hosts
+  - ./config/cdn.yaml # cdn -> hosts
 
 plugins:
   - tag: forward_local # 本地 DNS，用于解析国内域名
@@ -48,7 +48,7 @@ plugins:
   - tag: dns_remote # 远程查询 DNS 入口
     type: sequence
     args:
-      - exec: debug_print "使用远程 DNS 查询"
+      # - exec: debug_print "使用远程 DNS 查询"
       - exec: $ecs_cn
       - exec: $forward_remote # 查询
       - exec: $change_cdn_ip # 优选 CDN IP

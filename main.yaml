@@ -6,7 +6,7 @@ api:
   http: :9091 # 在该地址启动 api 接口。
 
 include:
-  - ./dns.yaml # dns -> cdn -> hosts
+  - ./config/dns.yaml # dns -> cdn -> hosts
 
 plugins:
   - tag: dns_cache

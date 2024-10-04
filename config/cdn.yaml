@@ -2,7 +2,7 @@
 # 域名匹配到 CDN 的 IP 时，会使用优选的 IP 响应请求
 
 include:
-  - ./hosts.yaml
+  - ./config/hosts.yaml
 
 plugins:
   - tag: blackhole_cloudflare_ipv4
