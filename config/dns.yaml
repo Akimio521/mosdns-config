@@ -26,8 +26,8 @@ plugins:
     args:
       concurrent:
       upstreams:
-        - addr: https://doh.apad.pro/dns-query
-          bootstrap: 119.29.29.29
+        - addr: https://doh.apad.pro/dns-query # 可以自行修改成其他的 DoH 服务器
+          bootstrap: 119.29.29.29 # 腾讯 DNS 服务器，仅用于解析上面的 DoH 服务器的域名，可自行修改成运营商提供的 DNS
           bootstrap_version: 4
           enable_http3: false
 
