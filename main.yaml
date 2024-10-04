@@ -20,6 +20,10 @@ plugins:
   - tag: main
     type: sequence
     args:
+      - matches:
+          - qname $block_site # 匹配黑名单域名
+        exec: reject 5
+
       - matches: # 匹配国内域名
           - qname $geosite_cn
         exec: $dns_local

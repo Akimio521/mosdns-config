@@ -7,6 +7,13 @@ plugins:
       files:
         - ./rule/domain/cn.txt
 
+  - tag: block_site # 需要屏蔽的域名，例如一些广告域名
+    type: domain_set
+    args:
+      files:
+        - ./rule/domain/ad.txt # 屏蔽域名列表，https://anti-ad.net/
+        # - ./rule/domain/block.txt # 可以自行添加
+
   - tag: cloudflare_ipv4 # Cloudflare CDN IPv4
     type: ip_set
     args:
