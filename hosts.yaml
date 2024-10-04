@@ -1,0 +1,20 @@
+# 一些域名、IP 表
+
+plugins:
+  - tag: geosite_cn # 国内域名
+    type: domain_set # 域名集
+    args:
+      files:
+        - ./rule/domain/cn.txt
+
+  - tag: cloudflare_ipv4 # Cloudflare CDN IPv4
+    type: ip_set
+    args:
+      files:
+        - ./rule/ip/cloudflare_ipv4.txt
+
+  - tag: cloudflare_ipv6 # Cloudflare CDN IPv6
+    type: ip_set
+    args:
+      files:
+        - ./rule/ip/cloudflare_ipv6.txt

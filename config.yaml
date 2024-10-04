@@ -1,0 +1,43 @@
+# MosDNS 主配置文件
+log:
+  level: info
+
+api:
+  http: :9091 # 在该地址启动 api 接口。
+
+include:
+  - ./dns.yaml # dns -> cdn -> hosts
+
+plugins:
+  - tag: dns_cache
+    type: cache
+    args:
+      size: 1024
+      lazy_cache_ttl: 0
+      dump_file: ./cache.dump
+      dump_interval: 600
+
+  - tag: main
+    type: sequence
+    args:
+      - matches: # 匹配国内域名
+          - qname $geosite_cn
+        exec: $dns_local
+
+      - exec: ttl 5-180 # 设置 TTL 为 5-180 秒
+      - exec: jump has_resp_sequence # 如果有响应，跳转到 has_resp_sequence
+
+      - exec: $dns_cache # 以下使用非 UDP 查询 DNS 记录，速度较慢，优先从缓存中查找
+
+      - exec: $dns_remote
+      - exec: jump has_resp_sequence
+
+  # 启动 udp 和 tcp 服务器监听 DNS 请求
+  - type: udp_server
+    args:
+      entry: main # 流量转发到 main 插件（主入口）
+      listen: :53 # 监听 udp4/udp6 端口
+  - type: tcp_server
+    args:
+      entry: main
+      listen: :53 # 监听 tcp4/tcp6 端口

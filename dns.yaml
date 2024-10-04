@@ -1,0 +1,54 @@
+# 上游 DNS 配置
+
+include:
+  - ./cdn.yaml # cdn -> hosts
+
+plugins:
+  - tag: forward_local # 本地 DNS，用于解析国内域名
+    type: forward
+    args:
+      concurrent: 2
+      upstreams:
+        - addr: 119.29.29.29 # 腾讯DNS，可自行修改成运营商提供的 DNS
+        - addr: 223.5.5.5 # 阿里DNS，可自行修改成运营商提供的 DNS
+
+  - tag: ecs_cn
+    type: ecs_handler
+    args:
+      forward: false
+      preset: 182.204.22.94 # 辽宁电信，自行修改成离自己最近的运营商 IP
+      send: false
+      mask4: 12
+      mask6: 28
+
+  - tag: forward_remote # 远程 DNS，用于解析国外域名和国内小众域名
+    type: forward
+    args:
+      concurrent:
+      upstreams:
+        - addr: https://doh.apad.pro/dns-query
+          bootstrap: 119.29.29.29
+          bootstrap_version: 4
+          enable_http3: false
+
+  - tag: has_resp_sequence
+    type: sequence
+    args:
+      - matches:
+          - has_resp
+        exec: accept
+
+  - tag: dns_local # 本地查询 DNS 入口
+    type: sequence
+    args:
+      # - exec: debug_print "使用本地 DNS 查询"
+      - exec: $forward_local # 查询
+      - exec: $change_cdn_ip # 优选 CDN IP
+
+  - tag: dns_remote # 远程查询 DNS 入口
+    type: sequence
+    args:
+      - exec: debug_print "使用远程 DNS 查询"
+      - exec: $ecs_cn
+      - exec: $forward_remote # 查询
+      - exec: $change_cdn_ip # 优选 CDN IP

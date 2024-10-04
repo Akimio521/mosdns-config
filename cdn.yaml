@@ -1,0 +1,41 @@
+# IP 优选，需要定期修改，最好填写 2 - 4 个
+# 域名匹配到 CDN 的 IP 时，会使用优选的 IP 响应请求
+
+include:
+  - ./hosts.yaml
+
+plugins:
+  - tag: blackhole_cloudflare_ipv4
+    type: sequence
+    args:
+      - exec: black_hole 8.8.8.8 1.1.1.1
+      - exec: ttl 3600-0
+      - exec: accept
+
+  - tag: blackhole_cloudflare_ipv6
+    type: sequence
+    args:
+      - exec: black_hole 2a06::1111 2a06::6666
+      - exec: ttl 3600-0
+      - exec: accept
+
+  - tag: change_cdn_ip_cloudflare
+    type: sequence
+    args:
+      - matches:
+          - qtype 1 # 查询  A 记录
+          - has_wanted_ans # 查到 A 记录
+          - resp_ip $cloudflare_ipv4 # 查询结果是 Cloudflare 的 IPv4
+        exec: jump blackhole_cloudflare_ipv4 # 将结果替换成优选 IPv4
+      - matches:
+          - qtype 28 # 查询 AAAA 记录
+          - has_wanted_ans # 查到 AAAA 记录
+          - resp_ip $cloudflare_ipv6 # 查询结果是 Cloudflare 的 IPv6
+        exec: jump blackhole_cloudflare_ipv6 # 将结果替换成优选IPv6
+      - exec: return
+
+  - tag: change_cdn_ip
+    type: sequence
+    args:
+      - exec: jump change_cdn_ip_cloudflare
+      - exec: return
