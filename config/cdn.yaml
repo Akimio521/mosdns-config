@@ -8,14 +8,39 @@ plugins:
   - tag: blackhole_cloudflare_ipv4
     type: sequence
     args:
-      - exec: black_hole 8.8.8.8 1.1.1.1
+      - exec: black_hole 1.1.1.1 # Cloudflare 优选 IPv4
       - exec: ttl 3600-0
       - exec: accept
-
   - tag: blackhole_cloudflare_ipv6
     type: sequence
     args:
-      - exec: black_hole 2a06::1111 2a06::6666
+      - exec: black_hole 111::111 # Cloudflare 优选 IPv6
+      - exec: ttl 3600-0
+      - exec: accept
+
+  - tag: blackhole_gcore_ipv4
+    type: sequence
+    args:
+      - exec: black_hole 2.2.2.2 # G-Core Labs 优选 IPv4
+      - exec: ttl 3600-0
+      - exec: accept
+  - tag: blackhole_gcore_ipv6
+    type: sequence
+    args:
+      - exec: black_hole 222::222 # G-Core Labs 优选 IPv6
+      - exec: ttl 3600-0
+      - exec: accept
+
+  - tag: blackhole_cloudfront_ipv4
+    type: sequence
+    args:
+      - exec: black_hole 3.3.3.3 # CloudFront 优选 IPv4
+      - exec: ttl 3600-0
+      - exec: accept
+  - tag: blackhole_cloudfront_ipv6
+    type: sequence
+    args:
+      - exec: black_hole 333::333 # CloudFront 优选 IPv6
       - exec: ttl 3600-0
       - exec: accept
 
@@ -34,8 +59,40 @@ plugins:
         exec: jump blackhole_cloudflare_ipv6 # 将结果替换成优选IPv6
       - exec: return
 
+  - tag: change_cdn_ip_gcore
+    type: sequence
+    args:
+      - matches:
+          - qtype 1
+          - has_wanted_ans
+          - resp_ip $gcore_ipv4
+        exec: jump blackhole_gcore_ipv4
+      - matches:
+          - qtype 28
+          - has_wanted_ans
+          - resp_ip $gcore_ipv6
+        exec: jump blackhole_gcore_ipv6
+      - exec: return
+
+  - tag: change_cdn_ip_cloudfront
+    type: sequence
+    args:
+      - matches:
+          - qtype 1
+          - has_wanted_ans
+          - resp_ip $cloudfront_ipv4
+        exec: jump blackhole_cloudfront_ipv4
+      - matches:
+          - qtype 28
+          - has_wanted_ans
+          - resp_ip $cloudfront_ipv6
+        exec: jump blackhole_cloudfront_ipv6
+      - exec: return
+
   - tag: change_cdn_ip
     type: sequence
     args:
       - exec: jump change_cdn_ip_cloudflare
+      - exec: jump change_cdn_ip_gcore
+      - exec: jump change_cdn_ip_cloudfront
       - exec: return
