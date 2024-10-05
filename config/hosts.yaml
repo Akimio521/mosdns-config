@@ -1,6 +1,12 @@
 # 一些域名、IP 表
 
 plugins:
+ - tag: custom_hosts # 自定义 hosts 文件
+   type: hosts
+   args:
+     files:
+       - ./rule/hosts
+    
   - tag: geosite_cn # 国内域名
     type: domain_set # 域名集
     args:

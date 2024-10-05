@@ -20,6 +20,9 @@ plugins:
   - tag: main
     type: sequence
     args:
+      - exec: $custom_hosts # 自定义 hosts 文件
+      - exec: jump has_resp_sequence
+
       - matches:
           - qname $block_site # 匹配黑名单域名
         exec: reject 5
