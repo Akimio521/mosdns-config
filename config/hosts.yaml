@@ -50,4 +50,10 @@ plugins:
       files:
         - ./rule/ip/cloudfront_ipv6.txt
 
+  - tag: cdn_fliter # 不需要优选 CDN 的域名
+    type: domain_set # 域名集
+    args:
+      files:
+        - ./rule/domain/cdn_fliter.txt
+
   

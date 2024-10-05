@@ -92,6 +92,10 @@ plugins:
   - tag: change_cdn_ip
     type: sequence
     args:
+      - matches: # 匹配不需要优选 CDN 的域名
+          - qname $cdn_fliter
+        exec: return
+
       - exec: jump change_cdn_ip_cloudflare
       - exec: jump change_cdn_ip_gcore
       - exec: jump change_cdn_ip_cloudfront
